@@ -4,7 +4,6 @@ from tkinter import simpledialog
 root = tk.Tk()
 root.withdraw()
 name_of_user = simpledialog.askstring(title="Tên của bạn", prompt="Hãy nhập tên của bạn:")
-root.geometry("800x600")
 if name_of_user is not None:
     name = name_of_user.encode('Utf-8').decode('utf-8')
     cap = cv2.VideoCapture(0)
