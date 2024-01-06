@@ -147,7 +147,7 @@ while running:
                         frame = cv2.flip(frame, 0)
                         frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
                         pygame_surface = pygame.surfarray.make_surface(frame)
-                        screen.blit(pygame_surface, (0, 0))
+                        screen.blit(pygame_surface, (789,144))   # tọa độ của khung hình
                         pygame.display.flip()
                         for event in pygame.event.get():
                             if event.type == pygame.QUIT:
