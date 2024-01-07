@@ -7,7 +7,8 @@ import os
 import numpy as np
 from datetime import datetime
 import pygame
-from tkinter import messagebox
+import tkinter as tk
+from tkinter import simpledialog
 from tkinter import *
 import pyautogui
 import time
@@ -22,14 +23,11 @@ pathsave1 = "save(AnNinhChungCu)"+datetime.now().strftime("%d-%m-%Y")+".csv"
 images = []
 className = []
 mylist = os.listdir(path)
-
 for cl in mylist:
     curImg = cv2.imread(f"{path}/{cl}")
     images.append(curImg)
     className.append(os.path.splitext(cl)[0])
-
 #STEP2: ENCODING
-
 def MaHoa(images):
     encodeList = []
     for img in images:
@@ -54,7 +52,6 @@ def Save(name):
             dystring = now.strftime("%d/%m/%Y")
             f.writelines(f"\n{name},{dtstring},{dystring}")
     f.close()
-
 def Save1(name):
     with open(pathsave1,"r+") as f:
         myDatalist = f.readlines()
@@ -97,26 +94,27 @@ f.close()
 GREY = (150,150,150)
 BLACK = (0,0,0)
 WHITE = (255,255,255)
-
+hidden = True
 running = True
 # hiện cửa sổ lựa chọn
+
 font = pygame.font.SysFont("Times New Roman",50)
 text_1 = font.render('kiểm tra thông tin ', True, BLACK)
 text_2 = font.render(datetime.now().strftime("%d-%m-%Y"), True, BLACK)
 text_3 = font.render('đăng kí', True, BLACK)
 
-width, height = 700,500
-
+width, height = 650,500
+show = True
 while running:
     screen.fill(GREY)
     mouse_x, mouse_y = pygame.mouse.get_pos()
     pygame.draw.rect(screen, WHITE, (57, 76, 574, 153))
     pygame.draw.rect(screen, WHITE, (57, 270, 574, 153))
     text_1 = font.render("Dang mo....", True, WHITE)
-    screen.blit(text_1, (210, 120))
     text_2 = font.render("Nhấn Q để thoát", True, WHITE)
-    screen.blit(text_2, (1, 1))
     text_3 = font.render("Nhan Q de thoat", True, WHITE)
+    screen.blit(text_1, (210, 120))
+    screen.blit(text_2, (1, 1))
     screen.blit(text_3, (110, 320))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -125,6 +123,14 @@ while running:
             if event.button == 1:
                 if 57 < mouse_x < 574 and 76 < mouse_y < 320:
                     cap = cv2.VideoCapture(0)
+                    if show:
+                        text_1 = font.render("Dang mo....", True, WHITE)
+                        text_2 = font.render("Nhấn Q để thoát", True, WHITE)
+                        text_3 = font.render("Nhan Q de thoat", True, WHITE)
+                        screen.blit(text_1, (210, 120))
+                        screen.blit(text_2, (1, 1))
+                        screen.blit(text_3, (110, 320))
+                    show = False
                     while True:
                         ret, frame = cap.read()
                         frame = cv2.resize(frame, (width, height))
@@ -147,7 +153,7 @@ while running:
                         frame = cv2.flip(frame, 0)
                         frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
                         pygame_surface = pygame.surfarray.make_surface(frame)
-                        screen.blit(pygame_surface, (789,144))   # tọa độ của khung hình
+                        screen.blit(pygame_surface, (704,95))  
                         pygame.display.flip()
                         for event in pygame.event.get():
                             if event.type == pygame.QUIT:
@@ -161,42 +167,28 @@ while running:
                 if (mouse_x > 57 and mouse_x < 574) and (mouse_y > 272 and mouse_y < 421):
                     check = True
                     print("Quet mat...")
-                    #Khoi dong webcam
-                    cap = cv2.VideoCapture(0)
-                    c = True
-                    while c:
-                        ret, frame = cap.read()
-                        framS = cv2.resize(frame, (0,0), None,fx = 0.5, fy = 0.5)
-                        framS = cv2.cvtColor(framS, cv2.COLOR_BGR2RGB)
-                        #Xac dinh vi tri cua khuon mat
-                        facecurFrame =face_recognition.face_locations(framS)
-                        encodecurFrame = face_recognition.face_encodings(framS)
-                        for encodeFace, faceLoc in zip(encodecurFrame,facecurFrame):
-                            matches = face_recognition.compare_faces(encodeListKnow,encodeFace)
-                            faceDis = face_recognition.face_distance(encodeListKnow,encodeFace)
-                            matchIndex = np.argmin(faceDis)
-                            if faceDis[matchIndex] < 0.50:
-                                name = className[matchIndex].upper()
-                                Save1(name)
-                            else:
-                                name = "Unknow"
-                                scr = pyautogui.screenshot(region=(0,0,650,500), imageFilename="Unknow(AnNinhChungCu).png")
-                                check = False
-                            y1, x2, y2, x1 = faceLoc
-                            y1, x2, y2, x1 = y1*2, x2*2, y2*2, x1*2
-                            cv2.rectangle(frame,(x1,y1), (x2,y2), (0,255,0), 2)
-                            cv2.putText(frame,name,(x1,y1),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),2)
-                        while running: 
-                            ret, frame = cap.read() # ret sẽ đúng khi web cam chạy dc còn không không thì F frame mới là ghía trị mang khung hình của web cam
-                            framS = cv2.resize(frame, (0,0), None,fx = 0.5, fy = 0.5) # kiểm tra bằng cách thay đổi khung hình và điều chỉnh thành đen trăng giúp so sánh ảnh trong pic 2
-                            framS = cv2.cvtColor(framS, cv2.COLOR_BGR2RGB)
-                            frame = pygame.surfarray.make_surface(np.rot90(framS))
-                            screen.blit(frame, (0,0))
-                            pygame.display.update()
-                            if cv2.waitKey(1) == ord("q"):
-                                c = False
-                    cap.release()
-                    cv2.destroyAllWindows()
+                    root = tk.Tk()
+                    root.withdraw()
+                    name_of_user = simpledialog.askstring(title="Tên của bạn", prompt="Hãy nhập tên của bạn:")
+                    if name_of_user is not None:
+                        name = name_of_user.encode('Utf-8').decode('utf-8')
+                        cap = cv2.VideoCapture(0)
+                        scaling_factor = 0.5
+                        root.geometry("800x600")
+                        while True:
+                            ret, frame = cap.read()
+                            frame = cv2.resize(frame, (width, height))
+                            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+                            pygame_surface = pygame.surfarray.make_surface(frame)
+                            screen.blit(pygame_surface, (704,95))  
+                            pygame.display.flip()
+                            c = cv2.waitKey(1)
+                            if ret and c == 13: # nhấn en tơ để chụp
+                                cv2.imwrite(name + '.png', frame)
+                                print('Chụp xong')
+                                break
+                        cap.release()
+                        cv2.destroyAllWindows()
                     kl = e[0]
                     mail_address = "whitehathacker245@gmail.com"
                     password = "zhxa mhmn noek xnty"
@@ -236,6 +228,7 @@ while running:
                     cap = cv2.VideoCapture(0)
                     qrc = cv2.QRCodeDetector()
                     c = True
+
                     while c:
                         ret, frame = cap.read()
                         if ret:
