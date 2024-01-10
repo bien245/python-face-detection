@@ -121,6 +121,7 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
+
                 if 57 < mouse_x < 574 and 76 < mouse_y < 320:
                     cap = cv2.VideoCapture(0)
                     if show:
@@ -158,9 +159,9 @@ while running:
                         for event in pygame.event.get():
                             if event.type == pygame.QUIT:
                                 running = False
-                                break
-                            elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
-                                break
+                            elif event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_q:
+                                    running = False
                     cap.release()
                     cv2.destroyAllWindows()
 
@@ -176,17 +177,23 @@ while running:
                         scaling_factor = 0.5
                         root.geometry("800x600")
                         while True:
-                            ret, frame = cap.read()
-                            frame = cv2.resize(frame, (width, height))
-                            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-                            pygame_surface = pygame.surfarray.make_surface(frame)
-                            screen.blit(pygame_surface, (704,95))  
-                            pygame.display.flip()
-                            c = cv2.waitKey(1)
-                            if ret and c == 13: # nhấn en tơ để chụp
-                                cv2.imwrite(name + '.png', frame)
-                                print('Chụp xong')
+                            ret, camdki = cap.read()
+                            if not ret:
+                                print("erro")
                                 break
+                            camdki = cv2.resize(camdki, (width, height))
+                            camdki = cv2.rotate(camdki, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                            camdki = cv2.cvtColor(camdki, cv2.COLOR_BGR2RGB)
+                            pygame_surface = pygame.surfarray.make_surface(camdki)
+                            screen.blit(pygame_surface, (704,95))  
+                            pygame.display.flip() # lỗi
+                            for event in pygame.event.get():
+                                if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                                    cv2.imwrite(name + '.png', cv2.cvtColor(camdki, cv2.COLOR_BGR2RGB))
+                                    print('Chup xong')
+                                    cap.release()
+                                    pygame.quit()
+                                    break
                         cap.release()
                         cv2.destroyAllWindows()
                     kl = e[0]
@@ -251,10 +258,10 @@ while running:
                         data = entry.get()
                         if (data == ma) and (check == True):
                             print("Moi vao...")
-                            running = False
+                            exit()
                         else:
                             print("Nguoi la, moi di ra...")
-                            running = False
+                            exit()
                     btn = Button(root,text="Nhap",command = get)
                     btn.place(x=50,y=50)
                     root.mainloop()
