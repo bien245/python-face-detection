@@ -1,6 +1,8 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
+import pystray
+from PIL import Image
 import cv2
 import face_recognition
 import os
@@ -28,16 +30,6 @@ for cl in mylist:
     images.append(curImg)
     className.append(os.path.splitext(cl)[0])
 #STEP2: ENCODING
-def MaHoa(images):
-    encodeList = []
-    for img in images:
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        encode = face_recognition.face_encodings(img)[0]
-        encodeList.append(encode)
-    return encodeList
-
-encodeListKnow = MaHoa(images)
-print("MA HOA THANH CONG...100%")
 
 def Save(name):
     with open(pathsave,"r+") as f:
@@ -83,6 +75,7 @@ screen_width, screen_height = pygame.display.Info().current_w, pygame.display.In
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
 pygame.display.set_caption("AN NINH TRƯỜNG THPT TP ĐIỆN BIÊN PHỦ")
 Icon = pygame.image.load('thuvien/icon.png')
+image = Image.open("thuvien/icon.png")
 pygame.display.set_icon(Icon)
 f = open(pathsave,"w")
 f.write("Name,Time,Day")
@@ -99,7 +92,7 @@ running = True
 # hiện cửa sổ lựa chọn
 
 font = pygame.font.SysFont("Times New Roman",50)
-text_1 = font.render('kiểm tra thông tin ', True, BLACK)
+text_1 = font.render('Quét mặt', True, BLACK)
 text_2 = font.render(datetime.now().strftime("%d-%m-%Y"), True, BLACK)
 text_3 = font.render('đăng kí', True, BLACK)
 
@@ -110,19 +103,25 @@ while running:
     mouse_x, mouse_y = pygame.mouse.get_pos()
     pygame.draw.rect(screen, WHITE, (57, 76, 574, 153))
     pygame.draw.rect(screen, WHITE, (57, 270, 574, 153))
-    text_1 = font.render("Dang mo....", True, WHITE)
-    text_2 = font.render("Nhấn Q để thoát", True, WHITE)
-    text_3 = font.render("Nhan Q de thoat", True, WHITE)
+
     screen.blit(text_1, (210, 120))
     screen.blit(text_2, (1, 1))
     screen.blit(text_3, (110, 320))
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-
                 if 57 < mouse_x < 574 and 76 < mouse_y < 320:
+                    def MaHoa(images):
+                        encodeList = []
+                        for img in images:
+                            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                            encode = face_recognition.face_encodings(img)[0]
+                            encodeList.append(encode)
+                        return encodeList
+                    encodeListKnow = MaHoa(images)
                     cap = cv2.VideoCapture(0)
                     if show:
                         text_1 = font.render("Dang mo....", True, WHITE)
@@ -159,9 +158,6 @@ while running:
                         for event in pygame.event.get():
                             if event.type == pygame.QUIT:
                                 running = False
-                            elif event.type == pygame.KEYDOWN:
-                                if event.key == pygame.K_q:
-                                    running = False
                     cap.release()
                     cv2.destroyAllWindows()
 
@@ -179,17 +175,16 @@ while running:
                         while True:
                             ret, camdki = cap.read()
                             if not ret:
-                                print("erro")
                                 break
                             camdki = cv2.resize(camdki, (width, height))
                             camdki = cv2.rotate(camdki, cv2.ROTATE_90_COUNTERCLOCKWISE)
                             camdki = cv2.cvtColor(camdki, cv2.COLOR_BGR2RGB)
                             pygame_surface = pygame.surfarray.make_surface(camdki)
                             screen.blit(pygame_surface, (704,95))  
-                            pygame.display.flip() # lỗi
+                            pygame.display.flip() 
                             for event in pygame.event.get():
                                 if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                                    cv2.imwrite(name + '.png', cv2.cvtColor(camdki, cv2.COLOR_BGR2RGB))
+                                    cv2.imwrite("pic2/"+name + '.png', cv2.cvtColor(np.rot90(camdki, k =-1), cv2.COLOR_BGR2RGB))
                                     print('Chup xong')
                                     cap.release()
                                     pygame.quit()
@@ -235,7 +230,6 @@ while running:
                     cap = cv2.VideoCapture(0)
                     qrc = cv2.QRCodeDetector()
                     c = True
-
                     while c:
                         ret, frame = cap.read()
                         if ret:
@@ -267,3 +261,6 @@ while running:
                     root.mainloop()
     pygame.display.flip()
 pygame.quit()
+
+
+
