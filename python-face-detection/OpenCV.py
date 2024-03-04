@@ -1,8 +1,8 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
-import pystray
-from PIL import Image
+# import pystray
+# from PIL import Image
 import cv2
 import face_recognition
 import os
@@ -19,12 +19,13 @@ import random
 import qrcode
 
 #STEP1: Load anh tu thu vien
-path = "pic2"
+path = "picture"
 pathsave = "save(DiemDanh)"+datetime.now().strftime("%d-%m-%Y")+".csv"
 pathsave1 = "save(AnNinhChungCu)"+datetime.now().strftime("%d-%m-%Y")+".csv"
 images = []
 className = []
 mylist = os.listdir(path)
+
 for cl in mylist:
     curImg = cv2.imread(f"{path}/{cl}")
     images.append(curImg)
@@ -74,9 +75,10 @@ pygame.init()
 screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h - 60
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
 pygame.display.set_caption("AN NINH TRƯỜNG THPT TP ĐIỆN BIÊN PHỦ")
-Icon = pygame.image.load('thuvien/icon.png')
-image = Image.open("thuvien/icon.png")
+Icon = pygame.image.load('icon/icon.png')
+# image = Image.open("thuvien/icon.png")
 pygame.display.set_icon(Icon)
+
 f = open(pathsave,"w")
 f.write("Name,Time,Day")
 f.close()
@@ -124,9 +126,9 @@ while running:
                     encodeListKnow = MaHoa(images)
                     cap = cv2.VideoCapture(0)
                     if show:
-                        text_1 = font.render("Dang mo....", True, WHITE)
-                        text_2 = font.render("Nhấn Q để thoát", True, WHITE)
-                        text_3 = font.render("Nhan Q de thoat", True, WHITE)
+                        # text_1 = font.render("Dang mo....", True, WHITE)
+                        # text_2 = font.render("Nhấn Q để thoát", True, WHITE)
+                        # text_3 = font.render("Nhan Q de thoat", True, WHITE)
                         screen.blit(text_1, (210, 120))
                         screen.blit(text_2, (1, 1))
                         screen.blit(text_3, (110, 320))
@@ -261,6 +263,3 @@ while running:
                     root.mainloop()
     pygame.display.flip()
 pygame.quit()
-
-
-
