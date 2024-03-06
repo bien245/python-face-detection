@@ -17,7 +17,7 @@ import time
 import smtplib
 import random
 import qrcode
-
+import dlib
 #STEP1: Load anh tu thu vien
 path = "picture"
 pathsave = "save(DiemDanh)"+datetime.now().strftime("%d-%m-%Y")+".csv"
@@ -144,13 +144,33 @@ while running:
                             face_dis = face_recognition.face_distance(encodeListKnow, face_encoding)
                             match_index = np.argmin(face_dis)
                             if face_dis[match_index] < 0.40:
-                                name = className[match_index].upper()
+                                name = className[match_index]
                                 Save(name)
                             else:
                                 name = "Unknow"
                                 scr = pyautogui.screenshot(region=(0, 0, width, height), imageFilename="Unknow(DiemDanh).png")
+                            def draw_points(frame, landmarks, start, end, is_closed=False):
+                                points = [landmarks.part(i) for i in range(start, end+1)]
+                                for i in range(len(points)-1):
+                                    cv2.line(frame, (points[i].x, points[i].y), (points[i+1].x, points[i+1].y), (0, 255, 0), 1)
+                                if is_closed:
+                                    cv2.line(frame, (points[-1].x, points[-1].y), (points[0].x, points[0].y), (0, 255, 0), 1)
                             y1, x2, y2, x1 = face_location
-                            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                            detector = dlib.get_frontal_face_detector()
+                            predictor = dlib.shape_predictor("C:/Users/white.DESKTOP-GJ9453F/Downloads/shape_predictor_68_face_landmarks_GTX.dat/shape_predictor_68_face_landmarks_GTX.dat") # đường dẫn đến file pretrained
+                            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                            faces = detector(gray)
+                            for face in faces:
+                                landmarks = predictor(gray, face)
+                                draw_points(frame, landmarks, 0, 16)
+                                draw_points(frame, landmarks, 17, 21)
+                                draw_points(frame, landmarks, 22, 26)
+                                draw_points(frame, landmarks, 27, 30)
+                                draw_points(frame, landmarks, 30, 35, True)
+                                draw_points(frame, landmarks, 36, 41, True)
+                                draw_points(frame, landmarks, 42, 47, True)
+                                draw_points(frame, landmarks, 48, 59, True)
+                                draw_points(frame, landmarks, 60, 67, True)
                             cv2.putText(frame,name,(x1,y1),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),2)
                         frame = cv2.flip(frame, 0)
                         frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
@@ -263,3 +283,6 @@ while running:
                     root.mainloop()
     pygame.display.flip()
 pygame.quit()
+
+
+
